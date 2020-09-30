@@ -3,6 +3,8 @@ package com.bolaware.viewstimerstory
 import android.content.Context
 import android.support.annotation.DrawableRes
 import android.support.constraint.ConstraintLayout
+import android.view.GestureDetector
+import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -10,12 +12,10 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.VideoView
 import kotlinx.android.synthetic.main.progress_story_view.view.*
-import android.view.GestureDetector
-import android.view.GestureDetector.SimpleOnGestureListener
-import java.lang.Exception
 
 
 class Momentz : ConstraintLayout {
+
     private var currentlyShownIndex = 0
     private lateinit var currentView: View
     private var momentzViewList: List<MomentzView>
@@ -50,15 +50,17 @@ class Momentz : ConstraintLayout {
                 sliderView.durationInSeconds,
                 object : ProgressTimeWatcher {
                     override fun onEnd(indexFinished: Int) {
-                        currentlyShownIndex = indexFinished + 1
-                        next()
+                        if (currentlyShownIndex == indexFinished) {
+                            next()
+                        }
                     }
                 },
-                mProgressDrawable)
+                mProgressDrawable
+            )
+
             libSliderViewList.add(myProgressBar)
             view.linearProgressIndicatorLay.addView(myProgressBar)
         }
-        //start()
     }
 
     fun callPause(pause : Boolean){
@@ -74,7 +76,7 @@ class Momentz : ConstraintLayout {
                     resume()
                 }
             }
-        }catch (e : Exception){
+        } catch (e : Exception){
             e.printStackTrace()
         }
     }
@@ -97,6 +99,7 @@ class Momentz : ConstraintLayout {
                     } else if(v?.id == view.leftLay.id){
                         prev()
                     }
+
                     return true
                 } else {
                     // your code for move and drag
@@ -116,11 +119,8 @@ class Momentz : ConstraintLayout {
             }
         }
 
-//        view.leftLay.setOnClickListener { prev() }
-//        view.rightLay.setOnClickListener { next() }
         view.leftLay.setOnTouchListener(touchListener)
         view.rightLay.setOnTouchListener(touchListener)
-        //view.container.setOnTouchListener(touchListener)
 
         this.layoutParams = params
         passedInContainerView.addView(this)
@@ -143,18 +143,17 @@ class Momentz : ConstraintLayout {
         }
 
         currentView = momentzViewList[currentlyShownIndex].view
-
         libSliderViewList[currentlyShownIndex].startProgress()
-
         momentzCallback.onNextCalled(currentView, this, currentlyShownIndex)
 
         view.currentlyDisplayedView.removeAllViews()
         view.currentlyDisplayedView.addView(currentView)
+
         val params = LinearLayout.LayoutParams(
             LayoutParams.MATCH_PARENT,
             LayoutParams.MATCH_PARENT, 1f
         )
-        //params.gravity = Gravity.CENTER_VERTICAL
+
         if(currentView is ImageView) {
             (currentView as ImageView).scaleType = ImageView.ScaleType.FIT_CENTER
             (currentView as ImageView).adjustViewBounds = true
@@ -163,9 +162,6 @@ class Momentz : ConstraintLayout {
     }
 
     fun start() {
-//            Handler().postDelayed({
-//                show()
-//            }, 2000)
         show()
     }
 
@@ -198,13 +194,11 @@ class Momentz : ConstraintLayout {
 
     fun next() {
         try {
-            if (currentView == momentzViewList[currentlyShownIndex].view) {
-                currentlyShownIndex++
-                if (momentzViewList.size <= currentlyShownIndex) {
-                    finish()
-                    return
-                }
+            if (momentzViewList.size <= ++currentlyShownIndex) {
+                currentlyShownIndex = 0
+                return finish()
             }
+
             show()
         } catch (e: IndexOutOfBoundsException) {
             finish()
@@ -220,18 +214,8 @@ class Momentz : ConstraintLayout {
     }
 
     fun prev() {
-        try {
-            if (currentView == momentzViewList[currentlyShownIndex].view) {
-                currentlyShownIndex--
-                if (0 > currentlyShownIndex) {
-                    currentlyShownIndex = 0
-                }
-            }
-        } catch (e: IndexOutOfBoundsException) {
-            currentlyShownIndex -= 2
-        } finally {
-            show()
-        }
+        if (--currentlyShownIndex < 0) { currentlyShownIndex = 0 }
+        show()
     }
 
     private inner class SingleTapConfirm : SimpleOnGestureListener() {
@@ -240,6 +224,4 @@ class Momentz : ConstraintLayout {
             return true
         }
     }
-
-
 }

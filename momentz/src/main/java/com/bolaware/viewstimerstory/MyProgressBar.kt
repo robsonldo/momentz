@@ -17,12 +17,13 @@ class MyProgressBar : ProgressBar {
     private val timeWatcher: ProgressTimeWatcher
     private var mProgressDrawable : Int = R.drawable.green_lightgrey_drawable
 
-    constructor(context: Context, index: Int, durationInSeconds: Int, timeWatcher: ProgressTimeWatcher,  @DrawableRes mProgressDrawable : Int = R.drawable.green_lightgrey_drawable ) : super(
-        context,
-        null,
-        0,
-        android.R.style.Widget_ProgressBar_Horizontal
-    ) {
+    constructor(
+        context: Context,
+        index: Int,
+        durationInSeconds: Int,
+        timeWatcher: ProgressTimeWatcher,
+        @DrawableRes mProgressDrawable : Int = R.drawable.green_lightgrey_drawable
+    ) : super(context, null, 0, android.R.style.Widget_ProgressBar_Horizontal) {
         this.durationInSeconds = durationInSeconds
         this.index = index
         this.timeWatcher = timeWatcher
@@ -39,17 +40,10 @@ class MyProgressBar : ProgressBar {
 
         params.marginEnd = 5f.toPixel(context)
 
-        //val progressBar = MyProgressBar(context, durationInSeconds * 1000)
-        // textView.text = label.trim()
-
         this.max = 100
-
         this.progress = 0
-
         this.layoutParams = params
-
         this.progressDrawable = ContextCompat.getDrawable(context, mProgressDrawable)
-
     }
 
     fun startProgress() {
