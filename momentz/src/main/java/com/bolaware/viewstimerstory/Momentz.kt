@@ -205,7 +205,7 @@ class Momentz : ConstraintLayout {
         }
     }
 
-    private fun finish() {
+    fun finish() {
         momentzCallback.done()
         for (progressBar in libSliderViewList) {
             progressBar.cancelProgress()
